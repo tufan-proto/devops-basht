@@ -1,0 +1,50 @@
+---
+# Source: acuity-bkstg/templates/api/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bkstg-api
+spec:
+  selector:
+    matchLabels:
+      app: bkstg-api
+  template:
+    metadata:
+      labels:
+        app: bkstg-api # the label for the pods and the deployments
+    spec:
+      containers:
+      - name: bkstg-api
+        image: AcuityBkstgAcrSR.azurecr.io/bkstg-main-eastus-api:main-1c2fa24
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000 # the application listens to this port
+        # env:
+        # - name: MONGODB_URI # the application expects to find the MongoDB connection details in this environment variable
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: mongosecret # the name of the Kubernetes secret containing the data
+        #       key: MONGOCONNECTION # the key inside the Kubernetes secret containing the data
+        resources:
+          requests: # minimum resources required
+            cpu: 250m
+            memory: 64Mi
+          limits: # maximum resources allocated
+            cpu: 500m
+            memory: 256Mi
+        readinessProbe: # is the container ready to receive traffic?
+          httpGet:
+            port: 8000
+            path: /healthcheck
+        livenessProbe: # is the container healthy?
+          httpGet:
+            port: 8000
+            path: /healthcheck
+        volumeMounts:
+        - name: app-config
+          mountPath: "/app"
+          readOnly: true
+      volumes:
+      - name: app-config
+        configMap: 
+          name: bkstg-api

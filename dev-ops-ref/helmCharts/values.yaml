@@ -1,0 +1,40 @@
+
+version: 1.0.0
+app:
+  name: Acuity Backstage
+  baseUrl: http://localhost:3000
+
+organization:
+  name: Acuity
+
+api:
+  name: bkstg-api
+  namespace: bkstg
+  port: 7000
+  baseUrl: http://localhost:7000
+  registry: acuitybkstgacrsr.azurecr.io
+  imageRepository: bkstg-one-trial-eastus
+  releaseTag: trial-6e79109
+  database:
+    client: sqlite3
+    connection: ':memory:'
+  cache:
+    store: memory
+  # hpa
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+ingress-nginx:
+  namespace: ingress
+  controller:
+    replicaCount: 2
+    nodeSelector: 
+      "beta.kubernetes.io/os": linux
+  defaultBackend:
+    nodeSelector: 
+      "beta.kubernetes.io/os": linux
+
+cert-manager:
+  namespace: cert-mngr
